@@ -11,12 +11,14 @@ import {
   Server,
   Lock,
   Flame,
-  CheckCircle2
+  CheckCircle2,
+  UploadCloud,
+  DownloadCloud
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../utils/api';
 
-export function AdminPanel({ showToast }) {
+export function AdminPanel({ showToast, onTabChange }) {
   const [latency, setLatency] = useState(null);
   const [healthData, setHealthData] = useState(null);
   const [isSweeping, setIsSweeping] = useState(false);
@@ -69,6 +71,47 @@ export function AdminPanel({ showToast }) {
     >
       {/* Dynamic Background Glow Aura */}
       <div className="admin-ambient-halo"></div>
+
+      {/* Mode Tabs Switcher inside Admin View for Instant Mobile & Desktop Navigation */}
+      {onTabChange && (
+        <div className="mode-tabs futuristic-mode-tabs" style={{ marginBottom: '1.5rem', position: 'relative', zIndex: 10 }}>
+          <button
+            type="button"
+            className="mode-tab-btn"
+            onClick={() => onTabChange('send')}
+          >
+            <span className="tab-label-content">
+              <UploadCloud size={18} />
+              <span>Send Files</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            className="mode-tab-btn"
+            onClick={() => onTabChange('receive')}
+          >
+            <span className="tab-label-content">
+              <DownloadCloud size={18} />
+              <span>Receive Files</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            className="mode-tab-btn active admin-mode-pill-btn"
+            onClick={() => onTabChange('admin')}
+          >
+            <motion.div
+              layoutId="activeModePillAdmin"
+              className="mode-tab-bg-pill admin-pill-bg"
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+            />
+            <span className="tab-label-content admin-tab-text">
+              <ShieldCheck size={18} />
+              <span>Admin Tab</span>
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Main Admin Identity Hologram Card */}
       <motion.div

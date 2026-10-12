@@ -13,12 +13,12 @@ export function Navbar({ activeTab, onTabChange }) {
   });
 
   return (
-    <>
-      <header className="navbar futuristic-navbar">
-        {/* Heavy Top Scroll Progress Bar */}
-        <motion.div className="scroll-progress-bar" style={{ scaleX }} />
+    <header className="navbar futuristic-navbar">
+      {/* Heavy Top Scroll Progress Bar */}
+      <motion.div className="scroll-progress-bar" style={{ scaleX }} />
 
-        <div className="container nav-container">
+      <div className="container nav-container">
+        <div className="nav-top-row">
           <a
             href="#"
             className="brand"
@@ -38,7 +38,7 @@ export function Navbar({ activeTab, onTabChange }) {
             <span className="brand-badge futuristic-badge">5 GB &bull; 34H</span>
           </a>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links (Middle on PC) */}
           <ul className="nav-links desktop-nav-links">
             <li>
               <button
@@ -46,6 +46,7 @@ export function Navbar({ activeTab, onTabChange }) {
                 className={`nav-link-btn ${activeTab === 'send' ? 'active' : ''}`}
                 onClick={() => onTabChange('send')}
               >
+                <UploadCloud size={16} />
                 <span>Send Files</span>
                 {activeTab === 'send' && (
                   <motion.div layoutId="navIndicator" className="nav-active-pill" />
@@ -58,6 +59,7 @@ export function Navbar({ activeTab, onTabChange }) {
                 className={`nav-link-btn ${activeTab === 'receive' ? 'active' : ''}`}
                 onClick={() => onTabChange('receive')}
               >
+                <DownloadCloud size={16} />
                 <span>Receive Files</span>
                 {activeTab === 'receive' && (
                   <motion.div layoutId="navIndicator" className="nav-active-pill" />
@@ -92,46 +94,46 @@ export function Navbar({ activeTab, onTabChange }) {
             </motion.button>
           </div>
         </div>
-      </header>
 
-      {/* Futuristic Floating Mobile Bottom Navigation Dock (App-Like for Phone) */}
-      <nav className="mobile-bottom-dock" aria-label="Mobile Navigation">
-        <button
-          type="button"
-          className={`mobile-dock-btn ${activeTab === 'send' ? 'active' : ''}`}
-          onClick={() => onTabChange('send')}
-        >
-          <UploadCloud size={19} />
-          <span>Send</span>
-          {activeTab === 'send' && (
-            <motion.div layoutId="dockActivePill" className="dock-active-glow" />
-          )}
-        </button>
+        {/* Dedicated Mobile Header Tabs Bar (Prominently displayed right at the top on all phones) */}
+        <div className="mobile-header-tabs-bar">
+          <button
+            type="button"
+            className={`mobile-tab-item ${activeTab === 'send' ? 'active' : ''}`}
+            onClick={() => onTabChange('send')}
+          >
+            <UploadCloud size={17} />
+            <span>Send</span>
+            {activeTab === 'send' && (
+              <motion.div layoutId="mobileHeaderTabPill" className="mobile-tab-bg-glow" />
+            )}
+          </button>
 
-        <button
-          type="button"
-          className={`mobile-dock-btn ${activeTab === 'receive' ? 'active' : ''}`}
-          onClick={() => onTabChange('receive')}
-        >
-          <DownloadCloud size={19} />
-          <span>Receive</span>
-          {activeTab === 'receive' && (
-            <motion.div layoutId="dockActivePill" className="dock-active-glow" />
-          )}
-        </button>
+          <button
+            type="button"
+            className={`mobile-tab-item ${activeTab === 'receive' ? 'active' : ''}`}
+            onClick={() => onTabChange('receive')}
+          >
+            <DownloadCloud size={17} />
+            <span>Receive</span>
+            {activeTab === 'receive' && (
+              <motion.div layoutId="mobileHeaderTabPill" className="mobile-tab-bg-glow" />
+            )}
+          </button>
 
-        <button
-          type="button"
-          className={`mobile-dock-btn admin-dock-btn ${activeTab === 'admin' ? 'active' : ''}`}
-          onClick={() => onTabChange('admin')}
-        >
-          <ShieldCheck size={19} className="admin-dock-icon" />
-          <span>Admin</span>
-          {activeTab === 'admin' && (
-            <motion.div layoutId="dockActivePill" className="dock-active-glow admin-dock-glow" />
-          )}
-        </button>
-      </nav>
-    </>
+          <button
+            type="button"
+            className={`mobile-tab-item mobile-admin-tab ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => onTabChange('admin')}
+          >
+            <ShieldCheck size={17} />
+            <span>Admin</span>
+            {activeTab === 'admin' && (
+              <motion.div layoutId="mobileHeaderTabPill" className="mobile-tab-bg-glow admin-glow" />
+            )}
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }

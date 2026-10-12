@@ -208,7 +208,7 @@ export function App() {
               style={{ minHeight: '80vh', padding: '2rem 0 4rem' }}
             >
               <div className="container">
-                <AdminPanel showToast={showToast} />
+                <AdminPanel showToast={showToast} onTabChange={handleTabChange} />
               </div>
             </motion.div>
           ) : (
@@ -266,6 +266,23 @@ export function App() {
                       <span className="tab-label-content">
                         <DownloadCloud size={18} />
                         <span>Receive Files</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`mode-tab-btn admin-mode-pill-btn ${activeTab === 'admin' ? 'active' : ''}`}
+                      onClick={() => handleTabChange('admin')}
+                    >
+                      {activeTab === 'admin' && (
+                        <motion.div
+                          layoutId="activeModePill"
+                          className="mode-tab-bg-pill admin-pill-bg"
+                          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                        />
+                      )}
+                      <span className="tab-label-content admin-tab-text">
+                        <ShieldCheck size={18} />
+                        <span>Admin Tab</span>
                       </span>
                     </button>
                   </div>
