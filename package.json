@@ -1,0 +1,24 @@
+{
+  "name": "sendfiles",
+  "version": "1.0.0",
+  "description": "SendFiles - Modern, secure, low-cost large file transfer application inspired by Send Anywhere",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:server": "node --watch server/src/server.js",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix server install --omit=dev && npm --prefix client install && npm --prefix client run build",
+    "start": "node server/src/server.js",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "test:e2e": "node server/tests/e2e-test.js"
+  },
+  "keywords": [
+    "file-transfer",
+    "multipart-upload",
+    "cloudflare-r2",
+    "react",
+    "express"
+  ],
+  "author": "SendFiles Team",
+  "license": "MIT"
+}

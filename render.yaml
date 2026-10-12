@@ -1,0 +1,18 @@
+services:
+  # Unified Web Service (Express API + React Frontend)
+  - type: web
+    name: sendfiles-app
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: STORAGE_PROVIDER
+        value: local
+      # To keep awake 24/7 on free tier, add your public Render URL:
+      # - key: SELF_PING_URL
+      #   value: https://sendfiles-app.onrender.com/api/health

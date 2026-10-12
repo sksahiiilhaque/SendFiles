@@ -1,0 +1,23 @@
+app = "sendfiles"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  STORAGE_PROVIDER = "local"
+  DATABASE_PATH = "/data/sendfiles.db"
+  LOCAL_STORAGE_DIR = "/data/storage"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[mounts]
+  source = "sendfiles_data"
+  destination = "/data"
