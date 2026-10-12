@@ -9,6 +9,11 @@
     <img src="https://img.shields.io/badge/Node.js-22%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 22 or newer">
     <img src="https://img.shields.io/badge/max_file_size-5_GB-7C3AED?style=for-the-badge" alt="Maximum file size: 5 GB">
   </p>
+  <p>
+    <img src="client/public/admin-dp.jpg" alt="Sk Sahil's profile picture" width="88" height="88" style="border-radius: 50%;">
+    <br>
+    Created by <strong>Sk Sahil</strong>
+  </p>
 </div>
 
 ---
