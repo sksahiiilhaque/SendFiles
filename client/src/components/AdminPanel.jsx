@@ -295,24 +295,6 @@ export function AdminPanel({ showToast, onTabChange }) {
             <span>Shield Mode: {shieldActive ? 'MAXIMUM' : 'STANDARD'}</span>
           </motion.button>
         </div>
-
-        {/* Live Admin Terminal Telemetry */}
-        <div className="admin-live-terminal">
-          <div className="terminal-log-line">
-            <span className="log-prompt text-lime">[ROOT@SK-SAHIL]:</span>
-            <span className="log-text">Admin session authenticated. Protocol: 34-Hour Auto-Purge.</span>
-          </div>
-          <div className="terminal-log-line">
-            <span className="log-prompt text-cyan">[STORAGE]:</span>
-            <span className="log-text">
-              Direct-to-Cloud 5 GB vector active &bull; Latency: {latency || 12}ms &bull; Zero Server Hop
-            </span>
-          </div>
-          <div className="terminal-log-line">
-            <span className="log-prompt text-purple">[DAEMON]:</span>
-            <span className="log-text">Background cleanup cron scheduled every 15 minutes.</span>
-          </div>
-        </div>
       </motion.div>
     </motion.div>
   );

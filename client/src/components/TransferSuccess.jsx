@@ -71,85 +71,63 @@ export function TransferSuccess({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.94 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}
     >
       <motion.div
         className="success-badge-icon futuristic-success-badge"
         initial={{ scale: 0, rotate: -45 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+        style={{ margin: '0 auto 1rem' }}
       >
-        <CheckCircle size={40} />
+        <CheckCircle size={44} />
       </motion.div>
 
-      <h2 className="success-title">
-        Quantum Upload <span className="text-gradient-cyan">Secured & Ready</span>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+        Transfer <span className="text-gradient-cyan">Code</span>
       </h2>
-      <p className="success-subtitle">
-        Your payload is staged. Share the 6-digit cryptographic key, direct link, or camera QR vector.
-      </p>
 
-      {/* Holographic 6-Digit Transfer Code Display Box */}
+      {/* Clean 6-Digit Transfer Code Display Box */}
       <motion.div
         className="code-box-wrapper futuristic-code-box"
         whileHover={{ scale: 1.015 }}
         transition={{ duration: 0.2 }}
+        style={{ maxWidth: '420px', margin: '0 auto 1.5rem', padding: '1.75rem 1rem' }}
       >
         <div className="code-box-aura"></div>
-        <div className="code-box-label">6-DIGIT ACCESS VECTOR</div>
-        <div className="code-display neon-code">{formatCode(code)}</div>
+        <div className="code-display neon-code" style={{ fontSize: '3rem', letterSpacing: '0.18em', margin: '0.5rem 0 1.25rem' }}>
+          {formatCode(code)}
+        </div>
 
-        <div className="code-actions">
+        <div className="code-actions" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
           <motion.button
             className="btn btn-primary glow-btn"
             onClick={handleCopyCode}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            style={{ minWidth: '150px' }}
           >
             {copiedCode ? <Check size={18} /> : <Copy size={18} />}
-            <span>{copiedCode ? 'Copied Key!' : 'Copy Code'}</span>
+            <span>{copiedCode ? 'Copied!' : 'Copy Code'}</span>
           </motion.button>
 
-          <motion.button
-            className="btn btn-secondary"
-            onClick={onOpenQrModal}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <QrCode size={18} />
-            <span>Optical QR Vector</span>
-          </motion.button>
+          {onOpenQrModal && (
+            <motion.button
+              className="btn btn-secondary"
+              onClick={onOpenQrModal}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Show QR Code"
+            >
+              <QrCode size={18} />
+              <span>QR Code</span>
+            </motion.button>
+          )}
         </div>
       </motion.div>
 
-      {/* Share Link Input */}
-      <div className="share-link-box futuristic-share-box">
-        <input
-          type="text"
-          className="share-link-input"
-          readOnly
-          value={shareableUrl}
-          onClick={(e) => e.target.select()}
-        />
-        <motion.button
-          className="btn btn-secondary"
-          onClick={handleCopyLink}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.96 }}
-          style={{ padding: '0.45rem 0.95rem' }}
-        >
-          {copiedLink ? <Check size={16} /> : <Copy size={16} />}
-          <span>{copiedLink ? 'Copied' : 'Copy'}</span>
-        </motion.button>
-      </div>
-
-      {/* Built-in 34-Hour Retention Indicator */}
-      <div className="expiry-countdown futuristic-countdown">
-        <Clock size={16} className="text-cyan" />
-        <span>Built-in 34h Protocol: {formatExpiryCountdown(expiresAt)}</span>
-      </div>
-
-      {/* Bottom Sender Controls */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '1.25rem' }}>
+      {/* Clean Send Another Button */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
         <motion.button
           className="btn btn-secondary"
           onClick={onReset}
@@ -157,21 +135,7 @@ export function TransferSuccess({
           whileTap={{ scale: 0.97 }}
         >
           <RotateCcw size={16} />
-          <span>Stage New Transfer</span>
-        </motion.button>
-
-        <motion.button
-          className="btn btn-danger"
-          onClick={() => {
-            if (window.confirm('Wipe and destroy this transfer immediately? Recipient will no longer be able to download.')) {
-              onDeleteTransfer();
-            }
-          }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Trash2 size={16} />
-          <span>Immediate Cryptographic Wipe</span>
+          <span>Send Another File</span>
         </motion.button>
       </div>
     </motion.div>

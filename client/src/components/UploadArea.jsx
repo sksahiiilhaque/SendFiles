@@ -13,7 +13,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
-  Sparkles
+  Sparkles,
+  Send
 } from 'lucide-react';
 import { formatBytes, getFileCategory } from '../utils/formatters';
 
@@ -172,16 +173,7 @@ export function UploadArea({ onStartUpload, showToast }) {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="queue-header">
-              <span className="queue-title">
-                Staged Payload: {selectedFiles.length} {selectedFiles.length === 1 ? 'file' : 'files'} &bull; {formatBytes(totalSize)}
-              </span>
-              <button className="btn btn-ghost" onClick={clearAllFiles} style={{ fontSize: '0.8rem', padding: '4px 10px' }}>
-                Clear Payload
-              </button>
-            </div>
-
-            <div className="queue-list">
+            <div className="queue-list" style={{ marginTop: '1rem' }}>
               <AnimatePresence>
                 {selectedFiles.map((file, idx) => (
                   <motion.div
@@ -216,22 +208,17 @@ export function UploadArea({ onStartUpload, showToast }) {
               </AnimatePresence>
             </div>
 
-            {/* Queue Controls - Built-in 34 Hours without asking */}
-            <div className="queue-controls">
-              <div className="built-in-retention-pill">
-                <span className="pulse-dot"></span>
-                <ShieldCheck size={16} className="text-cyan" />
-                <span>Built-in 34-Hour Autonomous Retention (Auto-Purged)</span>
-              </div>
-
+            {/* Clean Send Button */}
+            <div className="queue-controls" style={{ display: 'flex', justifyContent: 'center', marginTop: '1.25rem' }}>
               <motion.button
                 className="btn btn-primary btn-lg glow-btn"
                 onClick={handleSend}
                 whileHover={{ scale: 1.03, boxShadow: '0 0 25px var(--primary-glow)' }}
                 whileTap={{ scale: 0.97 }}
+                style={{ width: '100%', maxWidth: '280px', fontSize: '1.15rem', fontWeight: 800, padding: '0.9rem 2rem' }}
               >
-                <span>Initialize 5 GB Stream</span>
-                <ArrowRight size={18} />
+                <Send size={20} />
+                <span>Send</span>
               </motion.button>
             </div>
           </motion.div>
