@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, DownloadCloud } from 'lucide-react';
+import { UploadCloud, DownloadCloud, ShieldCheck } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { UploadArea } from './components/UploadArea';
