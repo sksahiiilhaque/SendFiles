@@ -1,316 +1,174 @@
-# 🚀 SendFiles — Modern, Secure & Low-Cost File Transfer
-
-**SendFiles** is a modern, high-performance, responsive file transfer web application inspired by Send Anywhere. It allows seamless, fast transfers of files up to **5 GB** between Android phones, iPhones, Windows PCs, Macs, and tablets using temporary 6-digit transfer codes, shareable links, and QR codes.
-
----
-
-## 🌟 Key Features
-
-- **5 GB File Uploads**: Powered by chunked multipart uploads with retry and pause/resume support.
-- **Direct-to-Storage Architecture**: Files upload directly from the browser to Cloudflare R2 (or local disk in development), bypassing Node.js server bandwidth bottlenecks.
-- **Temporary 6-Digit Transfer Codes**: Quick numeric codes (e.g., `834 912`) for effortless cross-device sharing.
-- **Mobile QR Code Scanning**: Point any iPhone or Android camera at the screen to immediately open and download files.
-- **Direct Share Links**: One-click copyable URLs that deep-link directly into the file download interface.
-- **Real-Time Transfer Metrics**: Live upload progress bar, transfer speed (MB/s), uploaded/total size, and dynamic ETA calculation.
-- **Sender Management**: Sender receives a cryptographic token to pause, resume, cancel, or permanently revoke transfers at any time.
-- **Automated 24-Hour Expiration & Cleanup**: Background cron periodically wipes expired files and aborts incomplete multipart uploads.
-- **Dual Storage Modes**: Zero-config Local File System adapter for local development, and Cloudflare R2 S3-compatible adapter for production.
-- **Zero Sign-Up & Privacy First**: No accounts, no email required, no tracking cookies. Files are permanently wiped upon expiration.
-- **Brute-Force Protection**: Strict rate limiting on transfer code lookups to prevent code guessing.
-- **Light & Dark Themes**: Sleek glassmorphism, curated HSL color palette, accessible contrast, and persistent theme toggle.
+<div align="center">
+  <img src="client/public/favicon.svg" alt="SendFiles logo" width="112" height="112">
+  <h1>SendFiles</h1>
+  <p><strong>Big files. No account. Just send.</strong></p>
+  <p>Move files between your phone, tablet, and computer with a short code, a link, or a QR scan.</p>
+  <p>
+    <img src="https://img.shields.io/badge/license-MIT-4F46E5?style=for-the-badge" alt="MIT License">
+    <img src="https://img.shields.io/badge/React-19-06B6D4?style=for-the-badge&logo=react&logoColor=white" alt="React 19">
+    <img src="https://img.shields.io/badge/Node.js-22%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 22 or newer">
+    <img src="https://img.shields.io/badge/max_file_size-5_GB-7C3AED?style=for-the-badge" alt="Maximum file size: 5 GB">
+  </p>
+</div>
 
 ---
 
-## 🛠️ Technology Stack
+## What is SendFiles?
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Language** | JavaScript (ES Modules, JSX) | Pure JavaScript across frontend and backend (No TypeScript) |
-| **Frontend** | React 19 + Vite | Fast modern UI, component modularity, instant HMR |
-| **Styling** | Modern Vanilla CSS & Design Tokens | Glassmorphism, smooth animations, light/dark themes, responsive |
-| **Backend** | Node.js (v24) + Express.js | API coordination, multipart session management, signed URL generation |
-| **Database** | SQLite (`node:sqlite` DatabaseSync) | Lightweight, persistent, zero-dependency embedded database |
-| **Storage (Dev)** | Local Storage Adapter | Simulates S3 multipart chunking locally without cloud credentials |
-| **Storage (Prod)**| Cloudflare R2 | S3-compatible private bucket with **$0 egress bandwidth fees** |
-| **Icons & QR** | Lucide React + `qrcode` | Clean iconography and instant client-side QR generation |
+**SendFiles is a self-hostable, cross-device file transfer app.** Choose files on one device, then open the transfer on another using a six-character code, a shareable link, or a QR code. No recipient account or app installation is needed.
 
----
+Files are split into chunks while uploading. With an S3-compatible provider such as Cloudflare R2 configured, the browser sends those chunks directly to object storage using temporary signed URLs. In local mode, SendFiles stores the chunks on the server's disk instead. Transfers expire automatically; the default lifetime is **34 hours**.
 
-## 📂 Project Architecture
+> SendFiles is the software you can run yourself. You choose the host and storage provider, and their limits, costs, and persistence policies apply.
 
-```
-d:/SendFiles/
-├── client/                          # React + Vite Frontend
-│   ├── public/                      # Static assets & SVG favicon
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx           # Logo, navigation links, light/dark toggle
-│   │   │   ├── Hero.jsx             # Headline, CTAs, animated device beam graphic
-│   │   │   ├── UploadArea.jsx       # Drag & drop, multi-file queue, 5GB validator
-│   │   │   ├── UploadProgress.jsx   # Live progress bar, speed, ETA, pause/cancel
-│   │   │   ├── TransferSuccess.jsx  # 6-digit code, share link, QR trigger, revoke
-│   │   │   ├── ReceiveFiles.jsx     # Code input, metadata, file list, Download All
-│   │   │   ├── HowItWorks.jsx       # 4-step illustrated guide
-│   │   │   ├── Footer.jsx           # Privacy policies, terms, copyright
-│   │   │   ├── QrCodeModal.jsx      # Canvas QR code generator modal
-│   │   │   └── Toast.jsx            # Micro-interaction notifications
-│   │   ├── context/
-│   │   │   └── ThemeContext.jsx     # Dark/light theme provider & local storage sync
-│   │   ├── utils/
-│   │   │   ├── api.js               # Backend API client
-│   │   │   ├── formatters.js        # Byte sizes, speeds, countdowns, codes
-│   │   │   └── multipartUploader.js # Chunking engine, pause/resume, retries
-│   │   ├── App.jsx                  # Main application controller & routing
-│   │   ├── index.css                # Custom CSS design system tokens
-│   │   └── main.jsx                 # React root
-│   ├── package.json
-│   └── vite.config.js               # Vite config with /api reverse proxy
-├── server/                          # Node.js + Express Backend
-│   ├── src/
-│   │   ├── config/
-│   │   │   ├── index.js             # Environment configuration
-│   │   │   └── database.js          # SQLite connection and schema
-│   │   ├── controllers/
-│   │   │   └── transferController.js
-│   │   ├── middleware/
-│   │   │   ├── errorHandler.js      # Safe error handler
-│   │   │   ├── rateLimiter.js       # Code brute-force and request rate limiter
-│   │   │   └── validator.js         # Input validation (size, codes, tokens)
-│   │   ├── routes/
-│   │   │   ├── transferRoutes.js    # Transfer lifecycle endpoints
-│   │   │   └── localUploadRoutes.js # Local storage chunk streaming endpoints
-│   │   ├── services/
-│   │   │   ├── codeGenerator.js     # Collision-free 6-digit code generator
-│   │   │   ├── cleanupService.js    # Background cron for expired files & aborts
-│   │   │   ├── transferService.js   # Transfer domain business logic
-│   │   │   └── storage/
-│   │   │       ├── storageInterface.js # Storage factory
-│   │   │       ├── localStorageService.js # Local disk multipart simulator
-│   │   │       └── r2StorageService.js    # Cloudflare R2 presigned URL service
-│   │   ├── utils/
-│   │   │   ├── cryptoUtils.js       # Cryptographic hashes, tokens, sanitizers
-│   │   │   └── logger.js            # Structured, secret-redacting logger
-│   │   ├── app.js                   # Express app configuration
-│   │   └── server.js                # Server entrypoint with background scheduler
-│   ├── tests/
-│   │   └── e2e-test.js              # Comprehensive end-to-end integration test
-│   ├── .env.example
-│   └── package.json
-├── package.json                     # Root orchestrator scripts
-└── README.md
+## How a transfer works
+
+1. **Choose files** — select or drag in files (up to 5 GB each; up to 50 files per transfer).
+2. **Upload** — SendFiles uploads in 10 MiB chunks and shows progress, speed, and estimated time remaining.
+3. **Share** — copy the six-character code or link, or let the recipient scan the QR code.
+4. **Receive** — open the link or enter the code on another device to view and download the files.
+5. **Expire** — the transfer is automatically cleaned up after its configured lifetime (34 hours by default).
+
+```mermaid
+flowchart LR
+    A[Sender browser] -->|Create transfer| B[SendFiles API]
+    A -->|File chunks| C[(Local disk or S3-compatible storage)]
+    B -->|Code, link, QR| D[Recipient]
+    D -->|Enter code / open link| B
+    D -->|Download| C
 ```
 
----
+## Features
 
-## ⚡ Quick Start (Local Development)
+- **Cross-device sharing** with six-character transfer codes, deep links, and QR codes.
+- **Large uploads** up to 5 GB per file and 50 files in one transfer.
+- **Multipart uploads** using configurable 10 MiB chunks, with browser-side progress, speed, and ETA.
+- **Upload controls** to pause, resume, cancel, or remove a transfer using the sender's authorization token.
+- **Two storage modes:** local disk for development and S3-compatible object storage (including Cloudflare R2) for deployments.
+- **Automatic expiration and cleanup** for completed transfers and abandoned multipart uploads.
+- **No account required** for senders or recipients.
+- **Responsive interface** with light and dark themes.
+- **Transfer-code rate limiting** to make code guessing harder.
 
-### 1. Prerequisites
-- **Node.js**: v20+ or v24+ (Node v24 includes built-in `node:sqlite`)
-- **npm**: v10+
+## Tech stack
 
-### 2. Install Dependencies
-Run from the project root:
+| Area | Tools |
+| --- | --- |
+| Web app | React 19, Vite, Framer Motion |
+| API | Node.js, Express |
+| Database | SQLite via Node.js `node:sqlite` |
+| File storage | Local disk or S3-compatible object storage |
+| Transfer UI | Lucide icons, QR generation and scanning |
+
+## Run it locally
+
+### Requirements
+
+- Node.js 22 or newer
+- npm
+
+### Install and start
+
 ```bash
+git clone https://github.com/<your-account>/SendFiles.git
+cd SendFiles
 npm run install:all
-```
-*(This installs root, server, and client dependencies).*
-
-### 3. Start Development Servers
-```bash
 npm run dev
 ```
-- **Frontend**: `http://localhost:5173`
-- **Backend API**: `http://localhost:4000`
-- **Health Check**: `http://localhost:4000/api/health`
 
-By default, SendFiles runs with `STORAGE_PROVIDER=local`. You can test uploading multiple gigabyte files, downloading them, entering codes, generating QR codes, and revoking transfers immediately with **zero external cloud accounts required**!
+The development runner starts the frontend and API:
 
-### 4. Run Automated End-to-End Tests
-To test the complete multipart upload, code generation, checksum verification, download, and cleanup pipeline:
+- Web app: <http://localhost:5173>
+- API health check: <http://localhost:4000/api/health>
+
+Local disk storage is selected by default, so you can try the app without cloud-storage credentials. Runtime data is written under `data/` and is excluded from Git.
+
+To run a production-style build locally:
+
 ```bash
-npm run test:e2e
+npm run build
+npm start
 ```
 
----
+The Express server serves the built frontend from `client/dist` when that directory exists.
 
-## ⚙️ Environment Variables
+## Configuration
 
-Copy `server/.env.example` to `server/.env`:
+Copy `server/.env.example` to `server/.env` and adjust the values for your environment:
 
 ```env
-# Server Port & URL
 PORT=4000
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 
-# Storage Provider: 'local' or 'r2'
+# local (default) or an S3-compatible provider such as R2
 STORAGE_PROVIDER=local
-
-# Local storage paths (used when STORAGE_PROVIDER=local)
 LOCAL_STORAGE_DIR=./data/storage
 DATABASE_PATH=./data/sendfiles.db
 
-# Cloudflare R2 Credentials (used when STORAGE_PROVIDER=r2)
-R2_ACCOUNT_ID=your_cloudflare_account_id
-R2_ACCESS_KEY_ID=your_r2_access_key_id
-R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+# Set these when using Cloudflare R2 or another S3-compatible endpoint
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=sendfiles-bucket
 R2_CUSTOM_DOMAIN=
 
-# Transfer Configurations
-MAX_FILE_SIZE_BYTES=5368709120       # 5 GB in bytes
-TRANSFER_EXPIRATION_HOURS=24          # Default expiration (24 hours)
-MULTIPART_CHUNK_SIZE_BYTES=10485760   # 10 MB chunk size for parallel uploads
-
-# Security & Rate Limiting
-RATE_LIMIT_CODE_MAX=20                # Max code guesses per 15 minutes per IP
+MAX_FILE_SIZE_BYTES=5368709120
+MULTIPART_CHUNK_SIZE_BYTES=10485760
+TRANSFER_EXPIRATION_HOURS=34
+RATE_LIMIT_CODE_MAX=20
 RATE_LIMIT_CODE_WINDOW_MINUTES=15
-SECURITY_SECRET=your-random-cryptographic-salt
+SECURITY_SECRET=replace-with-a-long-random-secret
 ```
 
----
+### Cloudflare R2 / S3-compatible storage
 
-## ☁️ Cloudflare R2 Production Setup
+Set `STORAGE_PROVIDER=r2` and provide valid credentials and an endpoint. For Cloudflare R2, set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, and `R2_SECRET_ACCESS_KEY`; the endpoint is derived from the account ID. For another S3-compatible service, configure `S3_ENDPOINT` and `S3_REGION` as needed. The storage adapter also accepts `s3` and `b2` as provider names.
 
-Cloudflare R2 provides an S3-compatible API with **$0 egress fees**, making it the most cost-effective solution for large file transfers.
+Configure the bucket's CORS policy to allow your deployed app origin and the `GET`, `PUT`, and `HEAD` methods. The browser needs to read the `ETag` response header for multipart upload completion. Keep the bucket private and use credentials scoped to the bucket.
 
-### 1. Create a Bucket in Cloudflare
-1. Log in to the Cloudflare Dashboard.
-2. Go to **R2** > **Create bucket**. Name it `sendfiles-bucket`.
-3. Keep the bucket **Private** (never enable public listing).
+**Production note:** set a strong, private `SECURITY_SECRET`. Use persistent storage for the SQLite database and local files if running in local-storage mode; many container and free-tier hosts use ephemeral disks. Cloud object storage avoids routing file payloads through the API server.
 
-### 2. Configure CORS on the R2 Bucket
-In the Cloudflare R2 dashboard, select your bucket > **Settings** > **CORS Policy** > **Add Rule**:
-```json
-[
-  {
-    "AllowedOrigins": [
-      "https://your-sendfiles-domain.com",
-      "http://localhost:5173"
-    ],
-    "AllowedMethods": [
-      "GET",
-      "PUT",
-      "HEAD"
-    ],
-    "AllowedHeaders": [
-      "*"
-    ],
-    "ExposeHeaders": [
-      "ETag",
-      "Content-Disposition",
-      "Content-Length"
-    ],
-    "MaxAgeSeconds": 3600
-  }
-]
+## Deploy
+
+The repository includes a `Dockerfile`, `render.yaml`, and `fly.toml` as starting points. The app can run as a single service: build the client, then start the Express server.
+
+For a standard Node.js host:
+
+```bash
+npm run build
+npm start
 ```
-*(Exposing `ETag` is essential for multipart uploads so the browser can read chunk hashes).*
 
-### 3. Generate R2 API Tokens
-1. In Cloudflare R2, click **Manage R2 API Tokens** > **Create API Token**.
-2. Permissions: **Object Read & Write**.
-3. Copy:
-   - Account ID
-   - Access Key ID
-   - Secret Access Key
-4. Add them to your production `.env` and set `STORAGE_PROVIDER=r2`.
+For a split frontend/backend deployment, build the frontend with Vite and set `VITE_API_BASE` to the deployed API base URL. Configure `CLIENT_URL` on the API to match the frontend origin. In either setup, configure durable storage and production credentials before accepting real uploads.
 
----
+## Tests
 
-## 🌐 100% Free Forever Deployment Guide
+Run the end-to-end transfer test:
 
-You can run SendFiles **completely free with $0.00/month recurring cost** using any of the following architectures:
+```bash
+npm run test:e2e
+```
 
-### 🏆 Option 1: 1-Click All-in-One Deployment (Render Free Web Service) — $0/mo
-The Express server automatically serves the built React frontend (`client/dist`), meaning you can host the **entire full-stack application as a single free service**:
+The test exercises the local transfer flow, including multipart upload and download.
 
-1. Push your SendFiles code to GitHub.
-2. Sign up at [Render.com](https://render.com) (100% free account, no credit card required).
-3. Click **New** > **Web Service** and connect your GitHub repo.
-4. Render will auto-detect Node.js or `render.yaml`:
-   - **Environment**: `Node`
-   - **Build Command**: `npm run build`
-   - **Start Command**: `npm start`
-   - **Plan**: `Free`
-5. **Keep-Alive (Prevent Sleep)**: Render free web services spin down after 15 minutes of inactivity. To keep your app awake 24/7 for free, add this environment variable in the Render Dashboard:
-   - `SELF_PING_URL`: `https://your-service-name.onrender.com/api/health`
-   *(SendFiles will automatically ping itself every 14 minutes to stay awake 24/7!)*
+## Project layout
 
----
+```text
+client/                 React + Vite interface
+  public/favicon.svg    SendFiles logo
+  src/components/      Upload, receive, QR, and transfer UI
+  src/utils/            API client and multipart uploader
+server/                 Express API and storage adapters
+  src/config/           Environment and SQLite configuration
+  src/services/         Transfer lifecycle and storage logic
+  tests/                End-to-end transfer test
+scripts/                Local development runner
+Dockerfile              Container build
+render.yaml             Render service template
+fly.toml                Fly.io configuration
+```
 
-### ⚡ Option 2: High-Performance Split Setup ($0/mo, 0ms Cold Starts)
-For maximum speed, zero cold starts, and global CDN edge distribution:
+## License
 
-| Component | Free Host | Free Quota | Monthly Cost |
-|---|---|---|---|
-| **Frontend** | [Cloudflare Pages](https://pages.cloudflare.com) | Unlimited requests, unlimited bandwidth | **$0.00** |
-| **Storage** | [Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/) or [Backblaze B2](https://www.backblaze.com/cloud-storage) | 10 GB storage free, **$0 egress fees** | **$0.00** |
-| **Backend API** | [Render](https://render.com) or [Koyeb](https://www.koyeb.com) | Free web service with self-ping keep-alive | **$0.00** |
-| **Database** | Embedded SQLite (`node:sqlite`) | Persistent local disk or Free Turso LibSQL | **$0.00** |
-
-#### Deploying Frontend to Cloudflare Pages:
-1. In Cloudflare Dashboard, go to **Workers & Pages** > **Create application** > **Pages**.
-2. Connect your GitHub repository.
-3. Build Settings:
-   - **Framework preset**: `Vite`
-   - **Build command**: `npm --prefix client run build`
-   - **Build output directory**: `client/dist`
-4. Set environment variable: `VITE_API_BASE=https://your-backend.onrender.com/api`
-
----
-
-### 📦 Option 3: Free S3 Storage Alternatives (No Credit Card Required)
-
-- **Cloudflare R2**: 10 GB storage free forever, 10,000,000 Class B read operations free/month, $0 egress fees.
-- **Backblaze B2**: 10 GB free forever, S3-compatible, **no credit card required** to create an account.
-  To use Backblaze B2, set in your `.env`:
-  ```env
-  STORAGE_PROVIDER=b2
-  R2_ACCESS_KEY_ID=your_b2_key_id
-  R2_SECRET_ACCESS_KEY=your_b2_application_key
-  R2_BUCKET_NAME=your_b2_bucket_name
-  S3_ENDPOINT=https://s3.us-west-004.backblazeb2.com
-  S3_REGION=us-west-004
-  ```
-
----
-
-### 🐳 Option 4: Free Docker Containers (Koyeb, Fly.io, Hugging Face)
-Use the included multi-stage `Dockerfile` to deploy a containerized instance on:
-- **Koyeb Free Nano**: Deploy via GitHub with Dockerfile.
-- **Fly.io**: Run `fly launch` (uses `fly.toml` with 1 GB persistent volume for free).
-- **Hugging Face Spaces**: Create a free Docker Space and push your repo.
-
----
-
-## 🔒 Security & Privacy Implementation
-
-1. **Brute-Force Code Protection**: Rate limiter restricts 6-digit code lookup attempts to 20 per 15-minute window per IP.
-2. **Sender Authentication Token**: Upon transfer creation, the sender receives a high-entropy secret token (`x-sender-token`). Only the sender can pause, finalize, or revoke the transfer.
-3. **No Database Secrets**: Sender tokens are stored only as HMAC-SHA256 hashes using a private server salt.
-4. **Short-Lived Signed URLs**: Presigned PUT and GET URLs expire after 1 hour. Private storage keys are never exposed to receivers.
-5. **Filename Sanitization**: Strip directory traversal characters (`../`, `\`), null bytes, control characters, and dangerous symbols.
-6. **Automated Background Purge**: Expired records and files are deleted automatically by `cleanupService` every 15 minutes.
-7. **No Plaintext File Storage**: Database stores only metadata (sizes, sanitized names, expiration timestamps).
-8. **No Persistent Tracking**: No user accounts, cookies, or profiling.
-
----
-
-## 🧪 Testing Checklist
-
-- [x] Single-file upload
-- [x] Multi-file batch upload (up to 50 files)
-- [x] Chunked multipart upload with ETags
-- [x] Real-time speed calculation and ETA
-- [x] Pause, resume, and cancel upload controls
-- [x] 6-digit code lookup
-- [x] Individual file downloads and "Download All"
-- [x] Checksum validation (bit-for-bit SHA256 integrity verified)
-- [x] Shareable URLs (`/?code=XXXXXX`)
-- [x] QR Code generation and camera scanning
-- [x] Sender revocation (immediate 410 Gone)
-- [x] Invalid code rate limiting and error handling
-- [x] Automated background cleanup scheduler
-- [x] Light and dark theme toggle persistence
-- [x] Mobile-first responsive layout (Android, iOS, PC, Mac)
+SendFiles is released under the [MIT License](LICENSE).
