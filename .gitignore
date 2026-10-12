@@ -15,7 +15,7 @@ dist-ssr/
 
 # Database & Local Storage Files
 data/
-storage/
+/storage/
 *.db
 *.db-wal
 *.db-shm
